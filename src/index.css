@@ -571,6 +571,7 @@ body.modal-open {
 /* Modal panel */
 .modal-panel {
   animation: modalPanelIn 0.45s cubic-bezier(.16, 1, .3, 1) forwards;
+  scroll-behavior: smooth;
 }
 
 .modal-panel.closing {
