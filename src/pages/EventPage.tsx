@@ -1,4 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
+import Lenis from 'lenis';
+import 'lenis/dist/lenis.css';
 
 /* ═══════════════════════════ TYPES ═══════════════════════════ */
 interface EventItem {
@@ -731,6 +733,28 @@ export default function EventPage() {
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedEvent, setSelectedEvent] = useState<EventItem | null>(null);
     const { visible, refs } = useReveal();
+
+    // Smooth Scrolling Initialization
+    useEffect(() => {
+        const lenis = new Lenis({
+            duration: 1.5,
+            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+            touchMultiplier: 2,
+            infinite: false,
+        });
+
+        function raf(time: number) {
+            lenis.raf(time);
+            requestAnimationFrame(raf);
+        }
+
+        const af = requestAnimationFrame(raf);
+
+        return () => {
+            cancelAnimationFrame(af);
+            lenis.destroy();
+        };
+    }, []);
 
     const openDetails = useCallback((event: EventItem) => {
         setSelectedEvent(event);
