@@ -356,6 +356,7 @@ function EventDetailModal({
 
             {/* Modal Panel */}
             <div
+                data-lenis-prevent
                 className={`relative z-10 w-full max-w-3xl mx-4 my-6 md:my-10 bg-white rounded-2xl overflow-hidden shadow-2xl max-h-[calc(100vh-80px)] overflow-y-auto modal-panel ${closing ? 'closing' : ''}`}
                 onClick={(e) => e.stopPropagation()}
             >
@@ -734,6 +735,8 @@ export default function EventPage() {
     const [selectedEvent, setSelectedEvent] = useState<EventItem | null>(null);
     const { visible, refs } = useReveal();
 
+    const lenisRef = useRef<Lenis | null>(null);
+
     // Smooth Scrolling Initialization
     useEffect(() => {
         const lenis = new Lenis({
@@ -742,6 +745,8 @@ export default function EventPage() {
             touchMultiplier: 2,
             infinite: false,
         });
+
+        lenisRef.current = lenis;
 
         function raf(time: number) {
             lenis.raf(time);
@@ -753,8 +758,20 @@ export default function EventPage() {
         return () => {
             cancelAnimationFrame(af);
             lenis.destroy();
+            lenisRef.current = null;
         };
     }, []);
+
+    // Control Lenis when modal opens/closes
+    useEffect(() => {
+        if (lenisRef.current) {
+            if (selectedEvent) {
+                lenisRef.current.stop();
+            } else {
+                lenisRef.current.start();
+            }
+        }
+    }, [selectedEvent]);
 
     const openDetails = useCallback((event: EventItem) => {
         setSelectedEvent(event);
